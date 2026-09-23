@@ -111,7 +111,7 @@ body.nav-open .nav-cta{margin:28px 0 0;font-size:20px;min-height:56px}
 .hero-map .hero-media{opacity:.28}
 .hero-map::before{background:linear-gradient(180deg,rgba(14,17,19,.6) 0%,rgba(14,17,19,.75) 60%,rgba(14,17,19,.98) 100%)}
 .hero-map .hero-grid{display:grid;gap:36px;align-items:center;padding-top:56px;padding-bottom:0}
-.hero-map .hero-copy h1{max-width:12ch;font-size:clamp(44px,7.5vw,84px)}
+.hero-map .hero-copy h1{max-width:14ch;font-size:clamp(44px,7.5vw,84px)}
 .hero-map-wrap{position:relative}
 .hero-map-wrap svg{width:100%;height:auto;max-width:600px;margin:0 auto;display:block;filter:drop-shadow(0 20px 40px rgba(0,0,0,.5))}
 .hero-map .wrap:last-child{padding-bottom:40px}
