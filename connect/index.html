@@ -1615,6 +1615,19 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB8gAAAJtCA
   };
   const DK = Object.keys(DEST);
 
+  /* ---------- demonstration buyers (fictional) — one per destination type ---------- */
+  const DEMO_BUYERS = [
+    { id: 'b-mill', name: 'Demo EAF Steel Mill', type: 'Steel mill · electric arc furnace', dest: 'aumill', contact: 'Scrap Procurement Manager', city: 'Laverton', state: 'VIC', target: 24 },
+    { id: 'b-foundry', name: 'Sample Iron Foundry', type: 'Foundry', dest: 'aufoundry', contact: 'Melt Shop Manager', city: 'Ballarat', state: 'VIC', target: 12 },
+    { id: 'b-mfr', name: 'Example Fabrication Co', type: 'Manufacturer', dest: 'aumfr', contact: 'Purchasing Manager', city: 'Dandenong', state: 'VIC', target: 10 },
+    { id: 'b-nf', name: 'Demo Non-Ferrous Metals', type: 'Non-ferrous buyer', dest: 'aunf', contact: 'Trading Manager', city: 'Melbourne', state: 'VIC', target: 8 },
+    { id: 'b-export', name: 'Sample Export Trading', type: 'Exporter · Vietnam and India', dest: 'export', contact: 'Import Manager', city: 'Melbourne', state: 'VIC', target: 24 },
+  ].map((b) => ({ ...b, demo: true }));
+  const buyerById = (id) => DEMO_BUYERS.find((b) => b.id === id);
+  const buyerForDest = (dest) => DEMO_BUYERS.find((b) => b.dest === dest) || null;
+  /* how a partner's metal is classed for recycled-content statements */
+  const ORIGIN = { Recycler: 'post-consumer', 'Demolition & construction': 'post-consumer (demolition)', 'Electrical & telecommunications': 'post-consumer', 'Local government': 'post-consumer', Retail: 'post-consumer (fit-out)', Manufacturing: 'pre-consumer (manufacturing offcuts)' };
+
   /* ---------- places (site map) ---------- */
   const CITY = {
     melbourne: [-37.81, 144.96, 'VIC'], geelong: [-38.15, 144.36, 'VIC'], ballarat: [-37.56, 143.85, 'VIC'], bendigo: [-36.76, 144.28, 'VIC'], dandenong: [-37.99, 145.21, 'VIC'], laverton: [-37.86, 144.77, 'VIC'],
@@ -1716,7 +1729,10 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB8gAAAJtCA
         t = Math.round(t * 100) / 100;
         const out = Math.round(t * S.recovery * between(0.96, 1.02) * 100) / 100;
         seq++;
-        DEMO_RECORDS.push({ id: `D${seq}`, partner: c.id, site: site.id, date: iso(d), stream, t, out: Math.min(out, t), dest: pickW(c.dest), docket: `WB-${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, '0')}-${seq}`, demo: true });
+        const NF = ['copper', 'cable', 'aluminium', 'brass', 'stainless'].includes(stream);
+        const allowed = Object.fromEntries(Object.entries(c.dest).filter(([k]) => (NF ? ['aunf', 'aumfr', 'export'] : ['aumill', 'aufoundry', 'aumfr', 'export']).includes(k)));
+        const dest = Object.keys(allowed).length ? pickW(allowed) : (NF ? 'aunf' : 'aumill');
+        DEMO_RECORDS.push({ id: `D${seq}`, partner: c.id, site: site.id, date: iso(d), stream, t, out: Math.min(out, t), dest, buyer: buyerForDest(dest)?.id || null, docket: `WB-${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, '0')}-${seq}`, demo: true });
       }
     });
   })();
@@ -1848,7 +1864,7 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB8gAAAJtCA
 
   /* ---------- boot ---------- */
   const partnerSide = {
-    key: 'partner', label: 'Partner portal', home: 'overview', enter: 'Partner portal',
+    key: 'partner', label: 'Partners', home: 'overview', enter: 'Partner portal',
     searchLabel: 'Search loads, sites and dockets',
     nav: [
       { id: 'overview', label: 'Overview', icon: 'grid' },
@@ -1862,6 +1878,24 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB8gAAAJtCA
     ],
     get user() { const c = PT(); return { name: c ? c.contact || 'Partner' : 'Partner', role: c ? c.name : 'No partner yet' }; },
     get org() { const c = PT(); return c ? { mark: mark(c.name), name: c.name, sub: `${c.sites.length} site${c.sites.length === 1 ? '' : 's'} · ${c.type || 'Partner'}` } : { mark: 'GS', name: 'No partner yet', sub: 'Add one on the corporate side' }; },
+  };
+  /* ---------- which buyer the buyer portal shows ---------- */
+  let buyerId = store.get(KEY + ':buyer', 'b-mill');
+  const BY = () => (showDemo() ? DEMO_BUYERS.find((b) => b.id === buyerId) || DEMO_BUYERS[0] : null);
+  const buyerSide = {
+    key: 'buyer', label: 'Buyers', home: 'overview', enter: 'Buyer portal',
+    searchLabel: 'Search dispatches, consignments and containers',
+    nav: [
+      { id: 'overview', label: 'Overview', icon: 'grid' },
+      { id: 'dispatches', label: 'Dispatches', icon: 'collection' },
+      { id: 'metals', label: 'Metals received', icon: 'materials' },
+      { id: 'content', label: 'Recycled content', icon: 'recovery' },
+      { id: 'statements', label: 'Statements', icon: 'reporting' },
+      { divider: 'About the numbers' },
+      { id: 'method', label: 'How it’s worked out', icon: 'info' },
+    ],
+    get user() { const b = BY(); return { name: b ? b.contact : 'Buyer', role: b ? b.name : 'No buyer yet' }; },
+    get org() { const b = BY(); return b ? { mark: mark(b.name), name: b.name, sub: `${b.type} · ${b.city} ${b.state}` } : { mark: 'GS', name: 'No buyer yet', sub: 'Demo buyers are switched off' }; },
   };
   const corpSide = {
     key: 'corp', label: 'Corporate', home: 'overview', enter: 'Global Steel corporate',
@@ -1893,13 +1927,15 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB8gAAAJtCA
       note: 'Choose a side of the platform.',
       small: 'No account needed in this version. Numbers entered are saved on this browser only.',
     },
-    sides: [partnerSide, corpSide],
+    sides: [partnerSide, buyerSide, corpSide],
     topRight: (side) => {
-      if (side.key !== 'partner') return `<a class="rgc-btn rgc-btn--sm" href="#/partner/overview">${icon('external', 14)} Partner portal</a>`;
+      if (side.key === 'corp') return `<a class="rgc-btn rgc-btn--sm" href="#/partner/overview">${icon('external', 14)} Partner portal</a> <a class="rgc-btn rgc-btn--sm" href="#/buyer/overview">${icon('external', 14)} Buyer portal</a>`;
+      if (side.key === 'buyer') return showDemo() ? `<span class="kit-noprint" title="Choose which buyer’s portal to view">${C.select('buyer', DEMO_BUYERS.map((b) => [b.id, b.name]), BY()?.id)}</span>` : '';
       const list = partners();
       return list.length > 1 ? `<span class="kit-noprint" title="Choose which partner’s portal to view">${C.select('partner', list.map((c) => [c.id, c.name]), PT()?.id)}</span>` : '';
     },
     search: (side) => {
+      if (side.key === 'buyer') return myDispatches().slice(0, 300).map((d) => ({ t: d.id, d: `${fmtDate(d.date)} · ${d.products.join(', ')} · ${n1(d.t)} t${d.container ? ' · ' + d.container : ''}`, href: `#/buyer/dispatches/${d.id}` }));
       const cl = side.key === 'partner' ? (PT() ? [PT()] : []) : partners();
       const recs = side.key === 'partner' ? myRecords() : records();
       return [
@@ -1911,6 +1947,8 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB8gAAAJtCA
   });
   Kit.action('select:partner', (v) => { partnerId = v; store.set(KEY + ':partner', v); if (!/^#\/partner\/(overview|loads|journey|impact|sites|reports|method)$/.test(location.hash)) Kit.go('#/partner/overview'); Kit.refresh(); });
   const usePartner = (id) => { if (id && id !== partnerId && partnerById(id)) { partnerId = id; store.set(KEY + ':partner', id); } };
+  Kit.action('select:buyer', (v) => { buyerId = v; store.set(KEY + ':buyer', v); if (!/^#\/buyer\/(overview|dispatches|metals|content|statements|method)$/.test(location.hash)) Kit.go('#/buyer/overview'); Kit.refresh(); });
+  Kit.action('open-buyer', (btn) => { if (buyerById(btn.dataset.id)) { buyerId = btn.dataset.id; store.set(KEY + ':buyer', buyerId); } Kit.go('#/buyer/overview'); });
 
   /* ---------- shared blocks ---------- */
   const auPins = (sites, hrefFn) => sites.map((s) => { const pl = place(s.city, s.state); return { id: s.id, ...Kit.AU.project(pl.lat, pl.lng), title: `${s.name} — ${s.city || ''} ${s.state || ''}`, href: hrefFn(s) }; });
@@ -2133,6 +2171,316 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB8gAAAJtCA
       if (m) m.outerHTML = Kit.reportMethodBlock(WHO).html;
     },
   }));
+
+
+  /* ======================================================================
+     BUYER PORTAL — dispatches, what was in them, and the recycled-content basis
+     ====================================================================== */
+  const BALED = { springsteel: 0.55, ferrous: 0.6, aluminium: 0.35 }; // nominal tonnes per bale, demonstration only
+  const DISPATCHES = (() => {
+    const out = [];
+    const R = Kit.rng('globalsteel-dispatch-v1');
+    const addDays = (d, n) => { const x = new Date(d); let k = 0; while (k < n) { x.setDate(x.getDate() + 1); if (x.getDay() !== 0 && x.getDay() !== 6) k++; } return x; };
+    const days = (a, b) => Math.round((dOf(b) - dOf(a)) / 86400000);
+    let seq = 100;
+    DEMO_BUYERS.forEach((b) => {
+      const recs = DEMO_RECORDS.filter((r) => r.buyer === b.id).sort((x, y) => (x.date < y.date ? -1 : 1));
+      let cur = null;
+      const flush = () => {
+        if (!cur) return;
+        seq++;
+        const dd = addDays(dOf(cur.last), 1 + Math.floor(R() * 3));
+        if (dd > TODAY) { cur = null; return; } // still being accumulated — not dispatched yet
+        const date = iso(dd);
+        const streams = [...new Set(cur.lines.map((l) => l.r.stream))];
+        const bales = cur.lines.reduce((a, l) => a + (BALED[l.r.stream] ? Math.round(l.t / BALED[l.r.stream]) : 0), 0);
+        out.push({ id: `DS-${date.slice(2, 4)}${date.slice(5, 7)}-${seq}`, buyer: b.id, date, first: cur.first, last: cur.last, lines: cur.lines, t: cur.t, streams,
+          products: streams.map((k) => STREAMS[k].product.split(' — ')[0]), bales: bales || null,
+          container: b.dest === 'export' ? `DEMU ${String(5000000 + seq * 7).padStart(7, '0')}` : null,
+          vehicle: b.dest === 'export' ? 'Container · 40 ft' : (cur.t > 14 ? 'B-double' : 'Semi-trailer'), demo: true });
+        cur = null;
+      };
+      recs.forEach((r) => {
+        const o = outcome(r);
+        if (cur && (cur.t + o.recovered > b.target * 1.15 || days(cur.first, r.date) > 9)) flush();
+        if (!cur) cur = { first: r.date, lines: [], t: 0 };
+        cur.lines.push({ r, t: o.recovered });
+        cur.t += o.recovered; cur.last = r.date;
+      });
+      flush();
+    });
+    return out.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  })();
+  const dispatches = () => (showDemo() ? DISPATCHES : []);
+  const myDispatches = (b = BY()) => (b ? dispatches().filter((d) => d.buyer === b.id) : []);
+  const dispatchById = (id) => dispatches().find((d) => d.id === id);
+  const inPeriodD = (d, p = P()) => { const x = dOf(d.date); return x >= p.start && x <= p.end; };
+  const noBuyer = () => ({ title: 'Buyer portal', html: C.note('The buyer portal shows the five demonstration buyers. Switch demonstration data back on under <a class="kit-green" href="#/corp/data">Corporate → Data &amp; backup</a> to see it. Accounts for your own buyers come with the next version.') });
+
+  /* aggregate a set of dispatches by product and by origin class */
+  function aggD(list) {
+    const byStream = {}, byOrigin = {};
+    let t = 0, n = 0, bales = 0, containers = 0;
+    list.forEach((d) => {
+      n++; t += d.t; bales += d.bales || 0; if (d.container) containers++;
+      d.lines.forEach((l) => {
+        const v = byStream[l.r.stream] || (byStream[l.r.stream] = { t: 0, n: 0 });
+        v.t += l.t; v.n++;
+        const c = partnerById(l.r.partner);
+        const o = ORIGIN[c?.type] || 'post-consumer';
+        byOrigin[o] = (byOrigin[o] || 0) + l.t;
+      });
+    });
+    const recs = list.flatMap((d) => d.lines.map((l) => l.r));
+    const R = recs.length ? agg(recs) : null;
+    return { n, t, bales, containers, byStream, byOrigin, R, loads: recs.length,
+      rows: Object.entries(byStream).map(([k, v]) => ({ k, S: STREAMS[k], ...v })).sort((a, b) => b.t - a.t) };
+  }
+  const seriesD = (list, p = P()) => buckets(p).map((b) => ({ b, A: aggD(list.filter((d) => { const x = dOf(d.date); return x >= b.start && x <= b.end; })) }));
+  const originParts = (A) => Object.entries(A.byOrigin).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ label: k[0].toUpperCase() + k.slice(1), value: v, display: `${n1(v)} t`, tone: k.startsWith('pre') ? 'processed' : 'recycling' }));
+  const contentBasis = (b) => `<ul style="margin:0;padding-left:16px;color:var(--app-text-2);display:grid;gap:6px;font-size:13px">
+      <li><b>Recycled content: 100%.</b> Everything dispatched is recovered scrap — no virgin metal is added at any stage.</li>
+      <li><b>Origin:</b> recovered and processed at the Recycle Group facility, 116 Furner Avenue, North Geelong VIC 3215. Australian material, Australian processing.</li>
+      <li><b>Class:</b> post-consumer (mattresses, demolition, council and fit-out material) or pre-consumer (manufacturing offcuts) — shown per dispatch and per line.</li>
+      <li><b>Weights:</b> every figure is the weighed output of the processing line. Lines marked * use the usual recovery rate for that metal because the output was not separately weighed.</li>
+      ${b && b.dest === 'aumill' ? '<li><b>Carbon:</b> scrap-based EAF steel averages 0.70 t CO₂ per tonne of crude steel against 2.32 t for blast-furnace steel (World Steel Association, 2023 data). The mill’s own EPD governs its product; Global Steel documents the scrap side.</li>' : ''}
+      <li><b>What is not claimed:</b> the CO₂-e avoided by recycling this metal is reported to the partner who supplied it. Buyers see it for information, not as a credit.</li>
+    </ul>`;
+
+  function dispatchTable(list, o = {}) {
+    return C.table([
+      { label: 'Dispatched', render: (d) => `<span class="strong">${fmtDate(d.date)}</span><div class="dim">${esc(d.id)}</div>` },
+      { label: 'Product', wrap: true, render: (d) => d.products.map((p) => esc(p)).join('<br>') },
+      { label: 'Weighed out', num: true, render: (d) => `<span class="green">${t2(d.t)} t</span><div class="dim">${d.lines.length} load${d.lines.length === 1 ? '' : 's'}</div>` },
+      { label: 'Bales', num: true, render: (d) => (d.bales ? num(d.bales) : '<span class="dim">loose / lots</span>') },
+      { label: 'Container / vehicle', render: (d) => (d.container ? `<span class="strong">${esc(d.container)}</span><div class="dim">${esc(d.vehicle)}</div>` : esc(d.vehicle)) },
+      { label: 'Statement', render: (d) => `<button type="button" class="rgc-btn rgc-btn--sm" data-action="dispatch-report" data-id="${esc(d.id)}">${icon('download', 13)} PDF</button>` },
+    ], list.slice(0, o.limit || 400), { rowHref: (d) => `#/buyer/dispatches/${d.id}`, empty: o.empty || 'No dispatches in this period.' });
+  }
+
+  Kit.route('buyer/overview', () => {
+    const b = BY(); if (!b) return noBuyer();
+    const list = myDispatches().filter((d) => inPeriodD(d));
+    const A = aggD(list);
+    const S = seriesD(list);
+    const top = A.rows[0];
+    return {
+      title: 'Overview', sub: `${esc(b.name)} · ${esc(P().label)} · ${P().range} <span class="kit-tag kit-tag--ghost">Demo figures</span>`, demo: false,
+      right: periodSelect() + reportBtn('buyer-report', {}, 'Supply statement'),
+      html: (list.length ? '' : C.note('Nothing dispatched to you in this period.'))
+        + C.kpis([
+          { label: 'Metal received', value: n1(A.t), unit: 't', foot: `${num(A.n)} dispatch${A.n === 1 ? '' : 'es'} · ${num(A.loads)} source loads`, spark: S.map((x) => x.A.t) },
+          { label: 'Recycled content', value: '100', unit: '%', green: true, foot: 'recovered scrap, no virgin metal' },
+          { label: top ? top.S.product.split(' — ')[0] : 'Main product', value: top ? n1(top.t) : '0', unit: 't', foot: top ? `${pct(top.t / (A.t || 1))} of what you received` : '' },
+          { label: b.dest === 'export' ? 'Containers' : 'Bales', value: b.dest === 'export' ? num(A.containers) : num(A.bales), foot: b.dest === 'export' ? 'packed and counted at North Geelong' : 'nominal count · loose and lots not counted' },
+        ])
+        + C.grid('1.4fr 1fr',
+          C.panel({ title: 'Received over time', meta: 'tonnes weighed out', body: C.chart(S.map((x) => x.b.label), [{ name: 'Received', values: S.map((x) => x.A.t), tone: 'green' }], { unit: 't', height: 250, dp: 1 }) }),
+          C.panel({ title: 'By product', meta: `${n1(A.t)} t`, body: A.rows.length ? C.rank(A.rows.map((x) => ({ t: x.S.product.split(' — ')[0], s: `${esc(x.S.name)} · ${x.n} load${x.n === 1 ? '' : 's'}`, value: x.t, v1: `${n1(x.t)} t`, v2: pct(x.t / (A.t || 1)) })), { cols: '1.4fr 1fr 64px 50px' }) : '<div class="kit-empty">Nothing yet.</div>' }))
+        + C.grid('1.4fr 1fr',
+          C.panel({ title: 'Recent dispatches', link: { href: '#/buyer/dispatches', label: 'All dispatches' }, flush: true, body: dispatchTable(list, { limit: 6 }) }),
+          C.panel({ title: 'Recycled-content basis', body: contentBasis(b) })),
+    };
+  });
+
+  Kit.route('buyer/dispatches', () => {
+    const b = BY(); if (!b) return noBuyer();
+    const list = myDispatches().filter((d) => inPeriodD(d));
+    const A = aggD(list);
+    return {
+      title: 'Dispatches', sub: `${num(list.length)} dispatches · ${esc(P().label)} <span class="kit-tag kit-tag--ghost">Demo figures</span>`, demo: false,
+      right: periodSelect() + C.btn('Export CSV', { icon: 'download', action: 'export-buyer' }),
+      html: C.kpis([
+        { label: 'Dispatches', value: num(A.n), foot: esc(P().short) },
+        { label: 'Weighed out', value: n1(A.t), unit: 't', foot: 'processing line output' },
+        { label: 'Source loads', value: num(A.loads), foot: 'each with its own weighbridge docket' },
+        { label: b.dest === 'export' ? 'Containers' : 'Bales', value: b.dest === 'export' ? num(A.containers) : num(A.bales), foot: b.dest === 'export' ? 'container numbers on every statement' : 'nominal' },
+      ]) + C.panel({ title: 'Every dispatch', meta: 'newest first · tap one for its statement', flush: true, body: dispatchTable(list) }),
+    };
+  });
+  Kit.action('export-buyer', () => {
+    const b = BY(); if (!b) return;
+    const rows = [['Dispatched', 'Consignment', 'Product', 'Source stream', 'Origin class', 'Weighed out (t)', 'Estimate', 'Bales', 'Container', 'Vehicle', 'Source docket']];
+    myDispatches().filter((d) => inPeriodD(d)).forEach((d) => d.lines.forEach((l) => {
+      const o = outcome(l.r), c = partnerById(l.r.partner);
+      rows.push([d.date, d.id, STREAMS[l.r.stream].product, STREAMS[l.r.stream].name, ORIGIN[c?.type] || 'post-consumer', +l.t.toFixed(3), o.measured ? '' : 'usual rate', d.bales || '', d.container || '', d.vehicle, l.r.docket || '']);
+    }));
+    if (rows.length === 1) { Kit.toast('Nothing to export for this period.'); return; }
+    Kit.download(`${fileBit(b.name)}-dispatches-${fileBit(P().short)}.csv`, Kit.csv(rows), 'text/csv');
+  });
+
+  Kit.route('buyer/dispatches/:id', ({ id }) => {
+    const d = dispatchById(id);
+    if (!d) return { title: 'Dispatch not found', html: C.note('That dispatch is not on this browser (demonstration data may be switched off).') };
+    if (d.buyer !== buyerId) { buyerId = d.buyer; store.set(KEY + ':buyer', buyerId); }
+    const b = buyerById(d.buyer);
+    const A = aggD([d]);
+    return {
+      title: `${d.id} · ${fmtDate(d.date)}`, nav: 'dispatches', demo: false,
+      crumb: `<a href="#/buyer/dispatches">Dispatches</a> / ${esc(d.products.join(', '))}`,
+      sub: `${esc(b.name)} · ${esc(d.vehicle)}${d.container ? ' · ' + esc(d.container) : ''} <span class="kit-tag kit-tag--ghost">Demo figures</span>`,
+      right: reportBtn('dispatch-report', { id: d.id }, 'Dispatch statement'),
+      html: C.kpis([
+        { label: 'Weighed out', value: t2(d.t), unit: 't', green: true, foot: `${d.lines.length} source load${d.lines.length === 1 ? '' : 's'}` },
+        { label: 'Product', value: esc(d.products[0]), foot: d.products.length > 1 ? `+ ${d.products.length - 1} more` : esc(STREAMS[d.streams[0]].name) },
+        { label: d.container ? 'Container' : 'Bales', value: d.container ? esc(d.container) : (d.bales ? num(d.bales) : '—'), foot: d.container ? `${d.bales ? num(d.bales) + ' bales · ' : ''}packed at North Geelong` : 'nominal count' },
+        { label: 'Processed', value: `${fmtDate(d.first)}`, foot: d.first === d.last ? 'single day' : `to ${fmtDate(d.last)}` },
+      ])
+        + C.panel({ title: 'What was in it', meta: 'one line per source load', flush: true, body: C.table([
+          { label: 'Processed', render: (l) => `<span class="strong">${fmtDate(l.r.date)}</span><div class="dim">${esc(l.r.docket || '')}</div>` },
+          { label: 'Source stream → product', render: (l) => `${esc(STREAMS[l.r.stream].name)}<div class="dim">→ ${esc(STREAMS[l.r.stream].product)}</div>` },
+          { label: 'Origin class', render: (l) => { const c = partnerById(l.r.partner); return `${esc(ORIGIN[c?.type] || 'post-consumer')}<div class="dim">${esc(c?.type || '')} · ${esc(siteById(l.r.site)?.state || '')}</div>`; } },
+          { label: 'Weighed out', num: true, render: (l) => `<span class="green">${t2(l.t)} t</span>${outcome(l.r).measured ? '' : '<span class="dim">*</span>'}` },
+          { label: 'Bales', num: true, render: (l) => (BALED[l.r.stream] ? num(Math.round(l.t / BALED[l.r.stream])) : '<span class="dim">—</span>') },
+        ], d.lines, { foot: ['Total', '', '', `${t2(d.t)} t`, d.bales ? num(d.bales) : ''] }) })
+        + C.grid('1fr 1fr',
+          C.panel({ title: 'Origin', meta: `${n1(A.t)} t`, body: C.split(originParts(A), { cols: 1 }) + '<p class="kit-muted" style="font-size:13px;margin-top:12px">Partner names are not shown to buyers; the class and state of origin are.</p>' }),
+          C.panel({ title: 'Recycled-content basis', body: contentBasis(b) })),
+    };
+  });
+
+  Kit.route('buyer/metals', () => {
+    const b = BY(); if (!b) return noBuyer();
+    const list = myDispatches().filter((d) => inPeriodD(d));
+    const A = aggD(list);
+    const S = seriesD(list);
+    const keys = A.rows.map((x) => x.k);
+    return {
+      title: 'Metals received', sub: `${esc(b.name)} · ${esc(P().label)} <span class="kit-tag kit-tag--ghost">Demo figures</span>`, demo: false,
+      right: periodSelect(),
+      html: C.kpis(A.rows.slice(0, 4).map((x) => ({ label: x.S.product.split(' — ')[0], value: n1(x.t), unit: 't', foot: `${x.n} load${x.n === 1 ? '' : 's'} · ${pct(x.t / (A.t || 1))}` })).concat(A.rows.length ? [] : [{ label: 'Nothing received', value: '0', unit: 't' }]))
+        + C.panel({ title: 'By product over time', meta: 'tonnes', body: C.chart(S.map((x) => x.b.label), keys.slice(0, 3).map((k, i) => ({ name: STREAMS[k].product.split(' — ')[0], values: S.map((x) => x.A.byStream[k]?.t || 0), tone: ['green', 'grey', 'ink'][i] })), { unit: 't', height: 250, dp: 1, key: true }) })
+        + C.panel({ title: 'Products', flush: true, body: C.table([
+          { label: 'Product', render: (x) => `<span class="strong">${esc(x.S.product)}</span><div class="dim">from ${esc(x.S.name.toLowerCase())}</div>` },
+          { label: 'How it is processed', wrap: true, render: (x) => `<span class="dim">${esc(x.S.path)}</span>` },
+          { label: 'Loads', num: true, render: (x) => num(x.n) },
+          { label: 'Received', num: true, render: (x) => `${n1(x.t)} t` },
+          { label: 'Share', num: true, render: (x) => pct(x.t / (A.t || 1)) },
+        ], A.rows, { empty: 'Nothing received in this period.' }) }),
+    };
+  });
+
+  Kit.route('buyer/content', () => {
+    const b = BY(); if (!b) return noBuyer();
+    const list = myDispatches().filter((d) => inPeriodD(d));
+    const A = aggD(list);
+    const post = Object.entries(A.byOrigin).filter(([k]) => k.startsWith('post')).reduce((a, [, v]) => a + v, 0);
+    return {
+      title: 'Recycled content', sub: `What you can put in a report about the metal Global Steel supplied · ${esc(P().label)}`, demo: false,
+      right: periodSelect() + reportBtn('buyer-report', {}, 'Supply statement'),
+      html: C.kpis([
+        { label: 'Recycled content', value: '100', unit: '%', green: true, foot: 'recovered scrap, no virgin metal' },
+        { label: 'Post-consumer', value: pct(A.t ? post / A.t : 0), foot: `${n1(post)} t of ${n1(A.t)} t` },
+        { label: 'Pre-consumer', value: pct(A.t ? (A.t - post) / A.t : 0), foot: 'manufacturing offcuts' },
+        { label: 'Australian origin', value: '100', unit: '%', foot: 'recovered and processed in Victoria' },
+      ])
+        + C.grid('1fr 1fr',
+          C.panel({ title: 'Origin of what you received', meta: `${n1(A.t)} t`, body: (A.t ? C.split(originParts(A), { cols: 1 }) : '<div class="kit-empty">Nothing in this period.</div>') + '<p class="kit-muted" style="font-size:13px;margin-top:12px">Classed by the type of partner the metal came from. Partner names stay confidential; the class and state of origin are on every statement.</p>' }),
+          C.panel({ title: 'The basis, in words', body: contentBasis(b) }))
+        + (b.dest === 'aumill' ? C.panel({ title: 'Why the scrap side matters for steel', body: `<div class="kit-grid" style="--cols:1fr 1fr 1fr;gap:12px">${[['Blast furnace (BF-BOF)', '2.32', 'iron ore + coal'], ['Global average, all routes', '1.92', 'worldsteel 2023'], ['Scrap electric arc furnace', '0.70', 'the route this scrap feeds']].map(([t, v, d], i) => `<div class="rgc-panel" style="padding:14px"><span class="rgc-kpi__label">${esc(t)}</span><span class="rgc-kpi__value"${i === 2 ? ' style="color:var(--app-green-ink)"' : ''}>${v}<small>t CO₂ / t</small></span><div class="rgc-kpi__foot"><span>${esc(d)}</span></div></div>`).join('')}</div><p class="kit-muted" style="font-size:13px;margin-top:12px">World Steel Association, Sustainability Indicators 2024 report (2023 data), per tonne of crude steel. Industry averages, not a specific mill. Your own EPD governs your product; this documents the scrap side.</p>` }) : '')
+        + C.panel({ title: `${WHO} records, buyers read`, body: `<p style="font-size:13px;color:var(--app-text-2);line-height:1.6;margin:0">Every dispatch statement is issued by Global Steel from the weighed record. Buyers download and quote them; they do not edit them. If a figure in a statement looks wrong, tell us and we will check the weighbridge record and reissue.</p>` }),
+    };
+  });
+
+  Kit.route('buyer/statements', () => {
+    const b = BY(); if (!b) return noBuyer();
+    const all = myDispatches();
+    const A = aggD(all.filter((d) => inPeriodD(d)));
+    return {
+      title: 'Statements', sub: `${esc(b.name)} · supply statements for any period, and one per dispatch`, demo: false,
+      right: periodSelect(),
+      html: C.grid('1.5fr 1fr',
+        `<div class="kit-stack">${C.panel({ title: 'Supply statements', meta: 'A4 · saves as PDF', flush: true, list: true, body: PERIODS.map((p) => {
+          const X = aggD(all.filter((d) => inPeriodD(d, p)));
+          return C.row({ icon: 'reporting', t: `${esc(p.short)} supply statement`, d: `${p.range} · ${num(X.n)} dispatches · ${n1(X.t)} t received`, r: reportBtn('buyer-report', { period: p.id }, 'Download'), cols: '36px 1fr auto' });
+        }).join('') })}
+        ${C.panel({ title: 'Dispatch statements', meta: esc(P().label), flush: true, body: dispatchTable(all.filter((d) => inPeriodD(d)), { limit: 60 }) })}</div>`,
+        C.panel({ title: 'What’s in a statement', body: `<div class="kit-cover" role="img" aria-label="Statement cover preview" style="margin-bottom:16px"><img src="${ASSETS.logo}" alt=""><div><h3>Supply statement</h3><p>${esc(P().range)}</p><p>${esc(b.name)}</p></div><div class="kit-cover__band"><div><span>Received</span><b>${n1(A.t)} t</b></div><div><span>Dispatches</span><b>${num(A.n)}</b></div><div><span>Recycled</span><b class="g">100%</b></div></div></div>
+          <ul style="margin:0;padding-left:16px;color:var(--app-text-2);display:grid;gap:6px;font-size:13px"><li>Every dispatch with its consignment number, product, weighed output, bale count and container number</li><li>Tonnes by product and by origin class (post- or pre-consumer)</li><li>The recycled-content basis in words, ready to quote</li><li>How the figures are worked out, with sources</li></ul>` })),
+    };
+  });
+
+  Kit.route('buyer/method', () => ({
+    title: 'How it’s worked out', nav: 'method', demo: false, sub: 'The weights, recovery rates and published factors behind every figure',
+    html: C.note('Every tonne on a buyer statement is the <b>weighed output</b> of the processing line at North Geelong — what went over the weighbridge on the way out, split by product. Where a load’s own output was not separately weighed, the usual recovery rate for that metal is used and the line is marked *. Bale counts are nominal; container numbers are recorded at packing.') + C.factorsPage(WHO).replace(/tap a number to change it/, 'set by Global Steel'),
+    after: (el) => {
+      el.querySelectorAll('[data-factor]').forEach((i) => { i.disabled = true; });
+      el.querySelector('[data-action="factors-reset"]')?.closest('.kit-toolbar')?.remove();
+      const m = el.querySelector('.kit-method');
+      if (m) m.outerHTML = Kit.reportMethodBlock(WHO).html;
+    },
+  }));
+
+  /* buyer statements (A4 → PDF) */
+  Kit.action('buyer-report', (btn) => {
+    const b = BY(); if (!b) { Kit.toast('No buyer to report on.'); return; }
+    const p = periodById[btn?.dataset?.period] || P();
+    const list = myDispatches(b).filter((d) => inPeriodD(d, p));
+    const A = aggD(list);
+    const S = seriesD(list, p);
+    const post = Object.entries(A.byOrigin).filter(([k]) => k.startsWith('post')).reduce((a, [, v]) => a + v, 0);
+    Kit.report({
+      title: `${b.name} — Supply statement`, kicker: 'Supply statement',
+      subtitle: 'Every dispatch from Global Steel: what it was, what it weighed, where it came from and the recycled-content basis.',
+      org: b.name, period: `${p.short} · ${p.range}`, prepared: `Prepared by Global Steel · ${nowText()}`,
+      logo: ASSETS.logo, logoDark: ASSETS.logoDark, logoH: 28,
+      filename: `${fileBit(b.name)}-supply-${fileBit(p.short)}`,
+      demo: 'Demonstration figures',
+      meta: [['Buyer', b.name], ['Type', b.type], ['Dispatches', num(A.n)], ['Source loads', num(A.loads)]],
+      hero: [
+        { label: 'Metal received', value: n1(A.t), unit: 't', note: 'weighed output of the processing line' },
+        { label: 'Recycled content', value: '100', unit: '%', note: 'recovered scrap, no virgin metal' },
+        { label: 'Post-consumer', value: pct(A.t ? post / A.t : 0), note: 'the rest is pre-consumer manufacturing offcuts' },
+      ],
+      compare: A.t ? compareMetal(A.t) : '',
+      blocks: [
+        { title: 'By product', meta: `${n1(A.t)} t`, table: { cols: [
+          { label: 'Product', render: (x) => `<span class="strong">${esc(x.S.product)}</span>` },
+          { label: 'From', render: (x) => esc(x.S.name) },
+          { label: 'Loads', num: true, render: (x) => num(x.n) },
+          { label: 'Received', num: true, render: (x) => `${n1(x.t)} t` },
+          { label: 'Share', num: true, render: (x) => pct(x.t / (A.t || 1)) },
+        ], rows: A.rows, foot: ['Total', '', num(A.loads), `${n1(A.t)} t`, '100%'], empty: 'Nothing received in this period.' } },
+        { title: 'Origin of the metal', meta: `${n1(A.t)} t`, html: A.t ? C.split(originParts(A), { cols: 3 }) : '<div class="kit-empty">Nothing in this period.</div>' },
+        { title: 'Received over time', meta: 'tonnes', html: C.chart(S.map((x) => x.b.label), [{ name: 'Received', values: S.map((x) => x.A.t), tone: 'green' }], { unit: 't', height: 200, dp: 1 }) },
+        { title: 'Recycled-content basis', html: contentBasis(b) },
+        { title: 'Dispatches', meta: `${num(A.n)} in this period`, table: { cols: [
+          { label: 'Date', render: (d) => `<span style="white-space:nowrap">${dOf(d.date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: '2-digit' })}</span>` },
+          { label: 'Consignment', render: (d) => `<span class="dim" style="white-space:nowrap">${esc(d.id)}</span>` },
+          { label: 'Product', render: (d) => esc(d.products.join(', ')) },
+          { label: 'Loads', num: true, render: (d) => num(d.lines.length) },
+          { label: 'Out (t)', num: true, render: (d) => t2(d.t) },
+          { label: 'Bales', num: true, render: (d) => (d.bales ? num(d.bales) : '—') },
+          { label: 'Container / vehicle', render: (d) => esc(d.container || d.vehicle) },
+        ], rows: [...list].sort((a, c) => (a.date < c.date ? -1 : 1)), empty: 'No dispatches in this period.' } },
+        Kit.reportMethodBlock(WHO),
+      ],
+    });
+  });
+  Kit.action('dispatch-report', (btn) => {
+    const d = dispatchById(btn.dataset.id); if (!d) return;
+    const b = buyerById(d.buyer);
+    const A = aggD([d]);
+    Kit.report({
+      title: 'Dispatch statement', noCover: true, org: `${b.name} · Global Steel`, period: `${fmtDate(d.date)} · ${d.id}${d.container ? ' · ' + d.container : ''}`,
+      prepared: `Prepared ${nowText()}`, logo: ASSETS.logo, logoDark: ASSETS.logoDark, logoH: 28, filename: `${fileBit(b.name)}-dispatch-${d.id}`,
+      demo: 'Demonstration figures',
+      blocks: [
+        { title: 'The consignment', html: C.review([['Buyer', esc(b.name)], ['Dispatched', fmtDate(d.date)], ['Consignment', esc(d.id)], ['Product', esc(d.products.join(', '))], ['Weighed out', `${t2(d.t)} t`], ['Bales', d.bales ? `${num(d.bales)} (nominal)` : 'loose / lots'], ['Container', esc(d.container || '—')], ['Vehicle', esc(d.vehicle)], ['Processed', d.first === d.last ? fmtDate(d.first) : `${fmtDate(d.first)} – ${fmtDate(d.last)}`], ['Origin', 'Recycle Group facility, 116 Furner Avenue, North Geelong VIC 3215']]) },
+        { title: 'What was in it', meta: 'one line per source load', table: { cols: [
+          { label: 'Processed', render: (l) => `<span style="white-space:nowrap">${fmtDate(l.r.date)}</span>` },
+          { label: 'Source stream → product', render: (l) => `${esc(STREAMS[l.r.stream].name)} → ${esc(STREAMS[l.r.stream].product.split(' — ')[0])}` },
+          { label: 'Origin class', render: (l) => { const c = partnerById(l.r.partner); return `${esc(ORIGIN[c?.type] || 'post-consumer')} · ${esc(siteById(l.r.site)?.state || '')}`; } },
+          { label: 'Out (t)', num: true, render: (l) => t2(l.t) + (outcome(l.r).measured ? '' : '<span class="dim">*</span>') },
+          { label: 'Docket', render: (l) => `<span class="dim" style="white-space:nowrap">${esc(l.r.docket || '')}</span>` },
+        ], rows: d.lines, foot: ['Total', '', '', t2(d.t), ''] } },
+        { title: 'Origin', html: C.split(originParts(A), { cols: 3 }) },
+        { title: 'Recycled-content basis', html: contentBasis(b) },
+        { title: 'How it was processed', html: `<p style="font-size:13px;line-height:1.6">${d.streams.map((k) => `<b>${esc(STREAMS[k].name)}:</b> ${esc(STREAMS[k].path)}.`).join(' ')}</p>` },
+        Kit.reportMethodBlock(WHO),
+      ],
+    });
+  });
 
   /* ======================================================================
      CORPORATE
@@ -2515,7 +2863,15 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB8gAAAJtCA
           { label: 'Loads', num: true, render: (x) => num(x.R.n) },
           { label: 'Recovered metal', num: true, render: (x) => `${n1(x.R.recovered)} t` },
           { label: 'Metals', wrap: true, render: (x) => `<span class="dim">${x.R.rows.map((r) => esc(STREAMS[r.id].short)).join(', ')}</span>` },
-        ], byDest, { empty: 'Nothing dispatched in this period.' }) }),
+        ], byDest, { empty: 'Nothing dispatched in this period.' }) })
+        + C.panel({ title: 'Buyers', meta: showDemo() ? 'demonstration buyers · one per destination type' : '', link: { href: '#/buyer/overview', label: 'Open the buyer portal' }, flush: true, body: showDemo() ? C.table([
+          { label: 'Buyer', render: (b) => `<span class="strong">${esc(b.name)}</span><div class="dim">${esc(b.type)} · ${esc(b.city)} ${esc(b.state)}</div>` },
+          { label: 'Dispatches', num: true, render: (b) => num(b.A.n) },
+          { label: 'Received', num: true, render: (b) => `${n1(b.A.t)} t` },
+          { label: 'Products', wrap: true, render: (b) => `<span class="dim">${b.A.rows.map((x) => esc(x.S.product.split(' — ')[0])).join(', ') || '—'}</span>` },
+          { label: 'Last dispatch', render: (b) => (b.last ? fmtDate(b.last) : '<span class="dim">—</span>') },
+          { label: '', render: (b) => `<button type="button" class="rgc-btn rgc-btn--sm" data-action="open-buyer" data-id="${esc(b.id)}">Buyer portal</button>` },
+        ], DEMO_BUYERS.map((b) => { const ds = dispatches().filter((d) => d.buyer === b.id && inPeriodD(d)); return { ...b, A: aggD(ds), last: ds[0]?.date }; }), { empty: 'No buyers.' }) : C.note('Buyer accounts for your own buyers come with the next version. Switch demonstration data on to see how the buyer portal reads.') }),
     };
   });
 
