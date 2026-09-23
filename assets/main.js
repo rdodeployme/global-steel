@@ -65,6 +65,43 @@
     });
   }
 
+  // Count-up numbers
+  var counters = document.querySelectorAll('[data-count]');
+  if (counters.length && 'IntersectionObserver' in window) {
+    var fmtN = function (n, d) { return n.toLocaleString('en-AU', { maximumFractionDigits: d }); };
+    var cio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var el = e.target; cio.unobserve(el);
+        var target = parseFloat(el.getAttribute('data-count')), d = parseInt(el.getAttribute('data-dp') || '0', 10);
+        var pre = el.getAttribute('data-pre') || '', suf = el.getAttribute('data-suf') || '';
+        var t0 = null, dur = 1400;
+        var step = function (ts) {
+          if (!t0) t0 = ts;
+          var p = Math.min(1, (ts - t0) / dur); p = 1 - Math.pow(1 - p, 3);
+          el.textContent = pre + fmtN(target * p, d) + suf;
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      });
+    }, { threshold: 0.4 });
+    counters.forEach(function (el) { cio.observe(el); });
+  }
+
+  // Dropdown nav: tap to open on touch, Escape closes
+  document.querySelectorAll('.site-nav .has-sub > a').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      if (document.body.classList.contains('nav-open')) return; // mobile: plain link
+      var li = a.parentElement;
+      if (window.matchMedia('(hover: none)').matches && !li.classList.contains('open')) {
+        e.preventDefault();
+        document.querySelectorAll('.site-nav .has-sub.open').forEach(function (x) { x.classList.remove('open'); });
+        li.classList.add('open'); li.querySelector('.sub').style.cssText = 'opacity:1;visibility:visible;transform:none';
+      }
+    });
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') document.activeElement && document.activeElement.blur(); });
+
   // Isotype grid (impact page)
   var iso = document.getElementById('iso-containers');
   if (iso) {
