@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /connect/
+Sitemap: https://rdodeployme.github.io/global-steel/sitemap.xml
