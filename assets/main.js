@@ -146,10 +146,10 @@
 // contact: preselect enquiry type from the link (#partnership, #sample)
 (function(){
   var sel=document.querySelector('#enquiry-form select[name="type"]'); if(!sel) return;
-  var map={'#partnership':'Forge a partnership','#sample':'Request a sample — recycled steel'};
+  var map={'#partnership':'Forge a partnership','#sample':'Request a sample — recycled steel','#processing':'Processing near my site'};
   var v=map[location.hash]; if(!v) return;
   for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===v){ sel.selectedIndex=i; break; } }
-  if(location.hash==='#partnership'){ var t=document.getElementById('sample'); if(t) setTimeout(function(){ t.scrollIntoView(); },50); }
+  if(location.hash==='#partnership'||location.hash==='#processing'){ var t=document.getElementById('sample'); if(t) setTimeout(function(){ t.scrollIntoView(); },50); }
 })();
 
 // in-body footage: play only while on screen
