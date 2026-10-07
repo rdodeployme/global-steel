@@ -142,3 +142,20 @@
     new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting){ v.play().catch(()=>{}); } else { v.pause(); } });},{threshold:.5}).observe(v);
   }
 })();
+
+// contact: preselect enquiry type from the link (#partnership, #sample)
+(function(){
+  var sel=document.querySelector('#enquiry-form select[name="type"]'); if(!sel) return;
+  var map={'#partnership':'Forge a partnership','#sample':'Request a sample — recycled steel'};
+  var v=map[location.hash]; if(!v) return;
+  for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===v){ sel.selectedIndex=i; break; } }
+  if(location.hash==='#partnership'){ var t=document.getElementById('sample'); if(t) setTimeout(function(){ t.scrollIntoView(); },50); }
+})();
+
+// in-body footage: play only while on screen
+(function(){
+  var vids=[].slice.call(document.querySelectorAll('video.inview')); if(!vids.length) return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){ var v=e.target; if(e.isIntersecting){ if(v.preload==='none'){ v.preload='auto'; } v.play().catch(function(){}); } else { v.pause(); } });},{threshold:.35});
+  vids.forEach(function(v){ io.observe(v); });
+})();
