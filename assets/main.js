@@ -130,3 +130,15 @@
     run();
   }
 })();
+
+// brand film: play when in view, button toggles
+(function(){
+  const v=document.getElementById('brand-film'); if(!v) return;
+  const b=document.querySelector('[data-film]');
+  const label=()=>{ if(b) b.textContent=v.paused?'Play':'Pause'; };
+  v.addEventListener('play',label); v.addEventListener('pause',label);
+  if(b) b.addEventListener('click',()=>{ v.paused?v.play():v.pause(); });
+  if('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches){
+    new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting){ v.play().catch(()=>{}); } else { v.pause(); } });},{threshold:.5}).observe(v);
+  }
+})();
