@@ -57,7 +57,7 @@
         'Message:',
         (f.get('message') || '')
       ];
-      var subject = 'Global Steel enquiry — ' + (f.get('type') || 'General') + (f.get('company') ? ' — ' + f.get('company') : '');
+      var subject = 'The Metal Recycling Company enquiry — ' + (f.get('type') || 'General') + (f.get('company') ? ' — ' + f.get('company') : '');
       var href = 'mailto:info@recycle.net.au?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
       window.location.href = href;
       var ok = document.getElementById('form-ok');
@@ -158,4 +158,28 @@
   if(matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
   var io=new IntersectionObserver(function(es){es.forEach(function(e){ var v=e.target; if(e.isIntersecting){ if(v.preload==='none'){ v.preload='auto'; } v.play().catch(function(){}); } else { v.pause(); } });},{threshold:.35});
   vids.forEach(function(v){ io.observe(v); });
+})();
+
+// booking form: pre-select sector from ?sector=, send as a pre-filled email
+(function(){
+  var form=document.getElementById('booking-form'); if(!form) return;
+  var k=(new URLSearchParams(location.search)).get('sector');
+  if(k){ var sel=form.querySelector('select[name="sector"]'); for(var i=0;i<sel.options.length;i++){ if(sel.options[i].getAttribute('data-k')===k){ sel.selectedIndex=i; break; } } }
+  form.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var f=new FormData(form);
+    var need=['organisation','name','email','site']; var miss=need.filter(function(n){return !(f.get(n)||'').trim();});
+    if(miss.length){ var el=form.querySelector('[name="'+miss[0]+'"]'); if(el){ el.focus(); el.setAttribute('aria-invalid','true'); } return; }
+    var items=f.getAll('items').join('; ')||'(not ticked)';
+    var L=['BOOKING REQUEST — free collection','',
+      'Organisation: '+f.get('organisation'),'Sector: '+f.get('sector'),'Contact: '+f.get('name')+(f.get('role')?' ('+f.get('role')+')':''),
+      'Email: '+f.get('email'),'Phone: '+(f.get('phone')||''),'',
+      'Items: '+items,'Quantity: '+(f.get('quantity')||''),'',
+      'Site: '+f.get('site'),'On site: '+f.get('access'),'Preferred dates: '+(f.get('dates')||''),'Hours: '+f.get('hours'),'',
+      'Data-bearing devices: '+f.get('data'),'Medical/lab equipment cleared: '+f.get('cleared'),'Requirements: '+(f.get('requirements')||''),'',
+      'Notes:',(f.get('notes')||''),'','(Photos attached if available.)'];
+    var subject='Collection booking — '+f.get('organisation')+' — '+f.get('site');
+    window.location.href='mailto:info@recycle.net.au?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(L.join('\n'));
+    var ok=document.getElementById('booking-ok'); if(ok){ ok.hidden=false; ok.focus(); }
+  });
 })();
