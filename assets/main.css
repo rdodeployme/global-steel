@@ -617,3 +617,87 @@ main{counter-reset:ch}
 
 /* home: collection-led headline, brand line as a smaller second line */
 .hero-stage h1 em{display:block;font-size:.6em;line-height:1;margin-top:.22em}
+
+/* =====================================================================
+   Clean line breaks: balanced headings, no lone last words, buttons and
+   chips never wrap, phrases glued with .nw
+   ===================================================================== */
+h1,h2,h3,h4,.statement p,.price b,.step h3,.card h3{text-wrap:balance;hyphens:manual}
+p,li,figcaption,blockquote,dd,td,th,summary,.lead,label{text-wrap:pretty}
+.btn,button,.tag,.chips li,.nav-login,.forge-link,.eyebrow,.stage-labels a,.num,.price span{white-space:nowrap}
+.nw{white-space:nowrap}
+p{max-width:68ch}
+.eyebrow{white-space:normal;text-wrap:balance}
+@media(max-width:560px){
+  .btn{font-size:15px;letter-spacing:.06em;padding:12px 18px;min-height:48px}
+  .btn-row{gap:10px}
+  .chips li{font-size:12.5px;padding:6px 10px}
+}
+.split>*,.grid>*,.price>*,.steps>*,.stage-copy>*{min-width:0}
+/* short blocks: balance so the last line is never one word */
+figcaption,td,th,dd,summary,.card p,.step p,.chips li,.checks li,.nolist li,.items li,.cap{text-wrap:balance}
+@media(min-width:900px){.page-hero h1{font-size:clamp(40px,4.6vw,66px);max-width:none}}
+@media(max-width:560px){
+  h1,.page-hero h1{font-size:clamp(32px,9.4vw,38px)}
+  h2{font-size:clamp(26px,7.6vw,30px)}
+  h3{font-size:21px}
+  .hero-stage h1{font-size:clamp(38px,11vw,44px)}
+}
+.page-hero h1{max-width:none}
+@media(min-width:820px){.price{grid-template-columns:1fr 1.35fr 1fr}}
+.stats,.prod-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(min-width:760px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.stats>div,.prod-grid>div,.hero-stats>div{min-width:0}
+
+/* ---- Home: sector strip + lineup labels (12 Oct) ---- */
+.sector-strip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:24px;position:relative;z-index:2}
+.sector-strip a{display:block;min-width:0;background:rgba(14,17,19,.94);padding:16px 18px;color:inherit;transition:background .2s}
+.sector-strip a:hover{background:#171B1E}
+.sector-strip b{display:block;font-family:var(--font-display);font-weight:800;font-size:clamp(21px,2.2vw,25px);line-height:1.05;color:var(--white);text-wrap:balance}
+.sector-strip span{display:block;font-size:13.5px;line-height:1.35;color:var(--muted);margin-top:8px;text-wrap:balance}
+@media(min-width:700px){.sector-strip{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(min-width:1100px){.sector-strip{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.hero-stage .sector-strip{margin-top:-6px}
+.stage-labels{bottom:24%}
+.stage-labels a{font-size:13px;letter-spacing:.16em}
+@media(max-width:1099px){.stage-labels{display:none}}
+
+/* ---- Line-break pass 2 (12 Oct) ---- */
+.cta h2{max-width:26ch}
+@media(max-width:560px){
+  h1,.page-hero h1{font-size:clamp(28px,8.2vw,36px)}
+  h2{font-size:clamp(24px,7vw,29px)}
+  .hero-stage h1{font-size:clamp(34px,9.6vw,44px)}
+  .prod-grid b{font-size:17px;letter-spacing:.02em}
+  .stats span,.hero-stats span{letter-spacing:.08em}
+}
+.items>div,.items li{min-width:0}
+.items{grid-template-columns:minmax(0,1fr)}
+@media(min-width:700px){.items{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1080px){.items{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.stage-head h1{font-size:clamp(40px,6vw,88px)}
+@media(min-width:900px){.stage-copy{grid-template-columns:1.4fr .6fr}}
+.stage-labels{bottom:22%}
+@media(max-width:560px){.hero-stage h1{font-size:clamp(34px,9.6vw,44px)}}
+/* home stage v2: cropped lineup */
+.stage-head h1{font-size:clamp(40px,5.4vw,78px)}
+@media(min-width:900px){.stage-copy{grid-template-columns:1.25fr .75fr;padding-top:56px!important}.stage-reel{margin-top:-80px}}
+.stage-reel{aspect-ratio:2400/1050;-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 11%,#000 80%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0%,#000 11%,#000 80%,transparent 100%)}
+@media(max-width:620px){.stage-reel{aspect-ratio:2400/1050}}
+.stage-reel img{object-fit:cover}
+.stage-labels{bottom:25%}
+@media(max-width:560px){.hero-stage h1{font-size:clamp(34px,9.6vw,44px)}}
+
+/* ---- Heading scale: keep short headings to two lines (12 Oct) ---- */
+h2{font-size:clamp(30px,4.2vw,52px)}
+.split h2{font-size:clamp(28px,2.9vw,42px)}
+@media(min-width:760px){.page-hero h1{font-size:clamp(36px,3.9vw,56px)}}
+@media(max-width:560px){h1,.page-hero h1{font-size:clamp(28px,8.2vw,36px)}h2,.split h2{font-size:clamp(24px,7vw,29px)}.hero-stage h1{font-size:clamp(34px,9.6vw,44px)}}
+.band h2{max-width:28ch}
+.grid-2 h2,.split h2{font-size:clamp(28px,2.9vw,42px)}
+@media(max-width:560px){.grid-2 h2,.split h2{font-size:clamp(24px,7vw,29px)}}
+.band h2{font-size:clamp(30px,3.6vw,48px)}
+@media(max-width:560px){.band h2{font-size:clamp(24px,7vw,29px)}}
+.grid-3 .card h3,.grid-4 .card h3{font-size:clamp(20px,2vw,24px)}
+.map-wrap h2{font-size:clamp(28px,2.9vw,42px)}
+@media(max-width:560px){.map-wrap h2{font-size:clamp(24px,7vw,29px)}}
