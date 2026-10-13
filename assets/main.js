@@ -57,7 +57,7 @@
         'Message:',
         (f.get('message') || '')
       ];
-      var subject = 'The Metal Recycling Company enquiry — ' + (f.get('type') || 'General') + (f.get('company') ? ' — ' + f.get('company') : '');
+      var subject = 'The Metal Recycling Company enquiry: ' + (f.get('type') || 'General') + (f.get('company') ? ' | ' + f.get('company') : '');
       var href = 'mailto:info@recycle.net.au?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
       window.location.href = href;
       var ok = document.getElementById('form-ok');
@@ -123,7 +123,7 @@
       document.getElementById('c-cars').textContent = fmt(co2 / 4.6);
       document.getElementById('c-steelcars').textContent = fmt(t / 0.9);
       document.getElementById('c-boxes').textContent = fmt(t / 25, t / 25 < 10 ? 1 : 0);
-      document.getElementById('c-note').textContent = fmt(t) + ' t of metal recovered instead of made new. Estimates — a statement uses weighed output.';
+      document.getElementById('c-note').textContent = fmt(t) + ' t of metal recovered instead of made new. These are estimates; a statement uses weighed output.';
     };
     calc.addEventListener('input', run);
     calc.addEventListener('submit', function (e) { e.preventDefault(); run(); });
@@ -146,7 +146,7 @@
 // contact: preselect enquiry type from the link (#partnership, #sample)
 (function(){
   var sel=document.querySelector('#enquiry-form select[name="type"]'); if(!sel) return;
-  var map={'#partnership':'Work together','#sample':'Request a sample — recycled steel','#processing':'Processing near my site'};
+  var map={'#partnership':'Work together','#sample':'Request a sample of recycled steel','#processing':'Processing near my site'};
   var v=map[location.hash]; if(!v) return;
   for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===v){ sel.selectedIndex=i; break; } }
   if(location.hash==='#partnership'||location.hash==='#processing'){ var t=document.getElementById('sample'); if(t) setTimeout(function(){ t.scrollIntoView(); },50); }
@@ -171,14 +171,14 @@
     var need=['organisation','name','email','site']; var miss=need.filter(function(n){return !(f.get(n)||'').trim();});
     if(miss.length){ var el=form.querySelector('[name="'+miss[0]+'"]'); if(el){ el.focus(); el.setAttribute('aria-invalid','true'); } return; }
     var items=f.getAll('items').join('; ')||'(not ticked)';
-    var L=['BOOKING REQUEST — free collection','',
+    var L=['BOOKING REQUEST: collection','',
       'Organisation: '+f.get('organisation'),'Sector: '+f.get('sector'),'Contact: '+f.get('name')+(f.get('role')?' ('+f.get('role')+')':''),
       'Email: '+f.get('email'),'Phone: '+(f.get('phone')||''),'',
       'Items: '+items,'Quantity: '+(f.get('quantity')||''),'',
       'Site: '+f.get('site'),'On site: '+f.get('access'),'Preferred dates: '+(f.get('dates')||''),'Hours: '+f.get('hours'),'',
       'Data-bearing devices: '+f.get('data'),'Medical/lab equipment cleared: '+f.get('cleared'),'Requirements: '+(f.get('requirements')||''),'',
       'Notes:',(f.get('notes')||''),'','(Photos attached if available.)'];
-    var subject='Collection booking — '+f.get('organisation')+' — '+f.get('site');
+    var subject='Collection booking: '+f.get('organisation')+' | '+f.get('site');
     window.location.href='mailto:info@recycle.net.au?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(L.join('\n'));
     var ok=document.getElementById('booking-ok'); if(ok){ ok.hidden=false; ok.focus(); }
   });

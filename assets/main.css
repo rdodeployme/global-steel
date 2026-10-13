@@ -5,7 +5,7 @@
 @font-face{font-family:"Barlow";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/barlow-latin-400-normal.woff2) format("woff2")}
 @font-face{font-family:"Barlow";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/barlow-latin-500-normal.woff2) format("woff2")}
 @font-face{font-family:"Barlow";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/barlow-latin-600-normal.woff2) format("woff2")}
-/* Reforge Metals — main stylesheet. Dark industrial. Mobile-first. */
+/* The Metal Recycling Company: main stylesheet. Dark industrial. Mobile-first. */
 :root{
   --bg:#0F1214;
   --bg-2:#15191C;
@@ -532,7 +532,7 @@ main{counter-reset:ch}
 /* =====================================================================
    No-crop media: every hero, band and in-body image/video is shown whole.
    Heroes and bands: the media sits beside the copy (desktop) or below it
-   (mobile) at its own aspect ratio, feathered into the page — never cropped.
+   (mobile) at its own aspect ratio, feathered into the page, never cropped.
    ===================================================================== */
 .page-hero,.band{background:var(--bg)}
 .page-hero .hero-media,.page-hero .hero-video,.band .hero-media{opacity:1;overflow:visible;display:flex;align-items:center;justify-content:flex-end;pointer-events:none}
