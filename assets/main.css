@@ -741,11 +741,11 @@ h2{font-size:clamp(30px,4.2vw,52px)}
 .strip-more{display:inline-block;margin-top:14px}
 
 /* ---- Home hero carousel (14 Oct) ---- */
-.reel-slide{position:absolute;inset:0;margin:0;opacity:0;visibility:hidden;transition:opacity 1.1s ease,visibility 0s linear 1.1s}
-.reel-slide.is-on{opacity:1;visibility:visible;transition:opacity 1.1s ease,visibility 0s}
+.reel-slide{position:absolute;inset:0;margin:0;opacity:0;visibility:hidden;transition:opacity .9s ease,visibility 0s linear .9s}
+.reel-slide.is-on{opacity:1;visibility:visible;transition:opacity .9s ease,visibility 0s}
 .reel-slide .stage-labels{bottom:var(--lab,25%)}
 .reel-slide .stage-labels li{opacity:0;transform:translate(-50%,6px);transition:opacity .5s ease,transform .5s ease}
-.reel-slide.is-on .stage-labels li{opacity:1;transform:translate(-50%,0);transition-delay:.45s}
+.reel-slide.is-on .stage-labels li{opacity:1;transform:translate(-50%,0);transition-delay:.35s}
 .reel-bar{position:relative;z-index:2;display:flex;align-items:center;gap:28px;margin:-6px 0 28px}
 .reel-bar[hidden]{display:none}
 .reel-meta{display:flex;align-items:baseline;gap:16px;margin:0;min-width:0;flex:0 1 380px}
@@ -758,7 +758,7 @@ h2{font-size:clamp(30px,4.2vw,52px)}
 .reel-steps button span{background:var(--white);transform:scaleX(0);transform-origin:left center}
 .reel-steps button:hover::before{background:var(--steel-2)}
 .reel-steps button.seen span{transform:scaleX(1);background:var(--steel-2)}
-.reel-steps button[aria-current="true"] span{background:var(--white);animation:reelFill var(--reel-ms,6500ms) linear forwards}
+.reel-steps button[aria-current="true"] span{background:var(--white);animation:reelFill var(--reel-ms,5500ms) linear forwards}
 .reel-bar.is-paused .reel-steps button[aria-current="true"] span{animation-play-state:paused}
 .reel-bar.is-static .reel-steps button[aria-current="true"] span{animation:none;transform:scaleX(1)}
 @keyframes reelFill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
@@ -773,3 +773,23 @@ h2{font-size:clamp(30px,4.2vw,52px)}
 @media(max-width:899px){.reel-bar{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px 20px;margin-top:6px}.reel-meta{grid-column:1/-1}}
 @media(max-width:620px){.reel-title{font-size:14px;letter-spacing:.16em}.reel-n{font-size:13px}.reel-ctl button{width:38px;height:38px}}
 @media(prefers-reduced-motion:reduce){.reel-slide,.reel-slide.is-on,.reel-slide .stage-labels li{transition:none}}
+
+/* ---- Richard's lists: 20 metals, 50 industries (14 Oct) ---- */
+.metal20-head{margin-top:56px;display:grid;gap:6px;max-width:760px}
+.metal20-head h3{font-size:clamp(22px,2.2vw,28px);margin:0}
+.metal20-head p{margin:0;font-size:15px}
+.metal20{list-style:none;counter-reset:m;margin:24px 0 0;padding:0;display:grid;grid-template-columns:1fr;column-gap:32px;border-top:1px solid var(--line)}
+.metal20 li{counter-increment:m;display:grid;grid-template-columns:40px 1fr;grid-template-rows:auto 1fr;align-content:start;align-items:start;row-gap:3px;padding:14px 0;border-bottom:1px solid var(--line)}
+.metal20 li::before{content:counter(m,decimal-leading-zero);grid-row:1;padding-top:3px;font-family:var(--font-display);font-weight:600;font-size:14px;letter-spacing:.12em;color:var(--muted)}
+.metal20 b{font-family:var(--font-display);font-weight:700;font-size:18px;letter-spacing:.08em;text-transform:uppercase;color:var(--white)}
+.metal20 span{grid-column:2;color:var(--muted);font-size:15px;line-height:1.45}
+@media(min-width:700px){.metal20{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1100px){.metal20{grid-template-columns:repeat(4,1fr)}}
+.ind-grid{display:grid;grid-template-columns:1fr;gap:36px 32px}
+@media(min-width:700px){.ind-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1100px){.ind-grid{grid-template-columns:repeat(5,1fr);gap:32px 28px}}
+.ind-group h3{font-size:clamp(18px,1.5vw,21px);margin:0 0 14px;padding-bottom:12px;border-bottom:1px solid var(--steel)}
+.ind-list{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.ind-list li{display:grid;grid-template-columns:30px 1fr;font-size:15px;line-height:1.4;color:var(--text)}
+.ind-list li span{font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.1em;color:var(--muted);padding-top:1px}
+@media(min-width:700px){.ind-group h3{min-height:2.6em}}
