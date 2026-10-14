@@ -793,3 +793,11 @@ h2{font-size:clamp(30px,4.2vw,52px)}
 .ind-list li{display:grid;grid-template-columns:30px 1fr;font-size:15px;line-height:1.4;color:var(--text)}
 .ind-list li span{font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.1em;color:var(--muted);padding-top:1px}
 @media(min-width:700px){.ind-group h3{min-height:2.6em}}
+
+/* ---- Home: 16 sector cards (14 Oct) ---- */
+.sector-cards{grid-template-columns:1fr;gap:36px 20px}
+@media(min-width:600px){.sector-cards{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1100px){.sector-cards{grid-template-columns:repeat(4,1fr);gap:40px 22px}}
+.sector-cards .card-body{padding-top:16px}
+.sector-cards .card-body h3{font-size:clamp(20px,1.7vw,24px)}
+.sector-cards .card-body p{font-size:15px;line-height:1.5;margin:0}
