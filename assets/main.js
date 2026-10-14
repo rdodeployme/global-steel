@@ -183,3 +183,40 @@
     var ok=document.getElementById('booking-ok'); if(ok){ ok.hidden=false; ok.focus(); }
   });
 })();
+
+// collection directory: search, counts and opening a category from the URL
+(function(){
+  var input=document.getElementById('dir-search'); if(!input) return;
+  var cats=[].slice.call(document.querySelectorAll('.dir-cat'));
+  var count=document.getElementById('dir-count'), empty=document.getElementById('dir-empty');
+  var total=document.querySelectorAll('.dir-list li').length;
+  function norm(s){ return (s||'').toLowerCase().replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim(); }
+  var SYN={'fridge':['refrigerat'],'fridges':['refrigerat'],'aircon':['air condition'],'air con':['air condition'],'ac':['air condition'],
+    'washer':['washing machine','dishwasher','glasswasher'],'xray':['x ray'],'guard rail':['guardrail'],'computer':['computer','laptop'],'laptop':['computer'],
+    'cable':['cable','wire','wiring'],'wire':['wire','cable'],'stove':['stove','oven','cooktop'],'oven':['oven','stove'],'trolley':['trolley','cart'],'car':['car ','cars','vehicle'],
+    'ute':['utility vehicle'],'panel':['panel'],'solar':['solar'],'hot water':['hot water'],'heater':['hot water'],'bin':['bin']};
+  function terms(q){ var t=[q]; if(SYN[q]) t=t.concat(SYN[q]); if(q.length>3 && q.slice(-1)==='s') t.push(q.slice(0,-1)); return t; }
+  function run(){
+    var q=norm(input.value), hits=0, tq=terms(q);
+    cats.forEach(function(c){
+      var title=norm(c.querySelector('.dir-t b').textContent), n=0;
+      [].forEach.call(c.querySelectorAll('.dir-list li'),function(li){
+        var tx=norm(li.textContent); var m=!q || title.indexOf(q)>-1 || tq.some(function(w){ return tx.indexOf(w)>-1; });
+        li.hidden=!m; li.classList.toggle('hit', !!q && m); if(m) n++;
+      });
+      c.hidden = !!q && n===0;
+      if(q){ c.open = n>0; }
+      hits+=n;
+    });
+    if(count) count.textContent = q ? (hits+' of '+total+' items match') : (total+' items across '+cats.length+' categories');
+    if(empty) empty.hidden = !(q && hits===0);
+  }
+  input.addEventListener('input',run);
+  function openHash(){
+    var id=(location.hash||'').slice(1); if(!id) return;
+    var el=document.getElementById(id);
+    if(el && el.classList.contains('dir-cat')){ el.open=true; }
+  }
+  window.addEventListener('hashchange',openHash);
+  openHash(); run();
+})();
