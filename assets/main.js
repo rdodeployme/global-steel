@@ -58,7 +58,7 @@
         (f.get('message') || '')
       ];
       var subject = 'The Metal Recycling Company enquiry: ' + (f.get('type') || 'General') + (f.get('company') ? ' | ' + f.get('company') : '');
-      var href = 'mailto:info@recycle.net.au?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
+      var href = 'mailto:nigel@junk.com.au?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
       window.location.href = href;
       var ok = document.getElementById('form-ok');
       if (ok) { ok.hidden = false; ok.focus(); }
@@ -179,7 +179,7 @@
       'Data-bearing devices: '+f.get('data'),'Medical/lab equipment cleared: '+f.get('cleared'),'Requirements: '+(f.get('requirements')||''),'',
       'Notes:',(f.get('notes')||''),'','(Photos attached if available.)'];
     var subject='Collection booking: '+f.get('organisation')+' | '+f.get('site');
-    window.location.href='mailto:info@recycle.net.au?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(L.join('\n'));
+    window.location.href='mailto:nigel@junk.com.au?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(L.join('\n'));
     var ok=document.getElementById('booking-ok'); if(ok){ ok.hidden=false; ok.focus(); }
   });
 })();

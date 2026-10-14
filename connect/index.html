@@ -1612,7 +1612,7 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB4sAAAEYCA
     aumfr: { name: 'Australian manufacturer', short: 'AU manufacturer', domestic: true },
     aunf: { name: 'Australian non-ferrous buyer', short: 'AU non-ferrous', domestic: true },
     export: { name: 'Export (containerised)', short: 'Export', domestic: false },
-    stock: { name: 'In stock at North Geelong', short: 'In stock', domestic: true },
+    stock: { name: 'In stock at our plant', short: 'In stock', domestic: true },
   };
   const DK = Object.keys(DEST);
 
@@ -1631,7 +1631,7 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB4sAAAEYCA
 
   /* ---------- places (site map) ---------- */
   const CITY = {
-    melbourne: [-37.81, 144.96, 'VIC'], geelong: [-38.15, 144.36, 'VIC'], ballarat: [-37.56, 143.85, 'VIC'], bendigo: [-36.76, 144.28, 'VIC'], dandenong: [-37.99, 145.21, 'VIC'], laverton: [-37.86, 144.77, 'VIC'],
+    melbourne: [-37.81, 144.96, 'VIC'], ballarat: [-37.56, 143.85, 'VIC'], bendigo: [-36.76, 144.28, 'VIC'], dandenong: [-37.99, 145.21, 'VIC'], laverton: [-37.86, 144.77, 'VIC'],
     sydney: [-33.87, 151.21, 'NSW'], newcastle: [-32.93, 151.78, 'NSW'], wollongong: [-34.42, 150.89, 'NSW'], parramatta: [-33.81, 151.0, 'NSW'],
     brisbane: [-27.47, 153.03, 'QLD'], 'gold coast': [-28.0, 153.43, 'QLD'], townsville: [-19.26, 146.82, 'QLD'],
     adelaide: [-34.93, 138.6, 'SA'], perth: [-31.95, 115.86, 'WA'], hobart: [-42.88, 147.33, 'TAS'], darwin: [-12.46, 130.84, 'NT'], canberra: [-35.28, 149.13, 'ACT'],
@@ -1648,7 +1648,7 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB4sAAAEYCA
   /* ---------- demonstration partners (fictional) ---------- */
   const DEMO_PARTNERS = [
     { id: 'dmr', name: 'Demo Mattress Recycler', type: 'Recycler', contact: 'Operations Manager', mix: { springsteel: 9 }, base: 1.6, dest: { aumill: 5, export: 5 },
-      sites: [['Processing plant', 'Geelong', 'VIC']] },
+      sites: [['Processing plant', 'Melbourne', 'VIC']] },
     { id: 'edc', name: 'Example Demolition Contractors', type: 'Demolition & construction', contact: 'Site Manager', mix: { ferrous: 6, mixed: 2, copper: 1, stainless: 1 }, base: 1.1, dest: { aumill: 6, aufoundry: 2, export: 2 },
       sites: [['Laverton yard', 'Laverton', 'VIC'], ['Dandenong yard', 'Dandenong', 'VIC'], ['Brisbane depot', 'Brisbane', 'QLD']] },
     { id: 'des', name: 'Demo Electrical Services', type: 'Electrical & telecommunications', contact: 'Fleet & Materials Coordinator', mix: { cable: 6, copper: 3, aluminium: 1 }, base: 0.9, dest: { aunf: 7, export: 3 },
@@ -1850,7 +1850,7 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB4sAAAEYCA
     ], rows: R.rows, foot: ['Total', num(R.tonnes, 1) + ' t', `${num(R.recovered, 1)} t (${pct(R.rate)})`, num(R.landfill, 1) + ' t', n1(R.co2Avoided) + ' t'], empty: 'Nothing recorded for this period.' } },
   ];
   Kit.reportMethodBlock = (owner) => ({ title: 'How these figures are worked out', html: `<ol class="kit-method">
-      <li><b>Weighed in.</b> Every load crosses the weighbridge at North Geelong; the docket weight is the figure used.</li>
+      <li><b>Weighed in.</b> Every load crosses our weighbridge; the docket weight is the figure used.</li>
       <li><b>Turned into.</b> The load is processed on the line for its metal. The product it becomes is recorded against the load.</li>
       <li><b>Recovered.</b> The saleable metal weighed out. Where an output weight was not recorded, ${esc(owner)}’s usual recovery rate for that metal is used and the load is marked as an estimate.</li>
       <li><b>Saving.</b> Tonnes recovered × the published recycling credit for that metal: the carbon avoided by not making the same metal new from ore, net of collection and reprocessing (steel 1.5 t CO₂/t, worldsteel; copper 5.2, aluminium 7.9 and mixed metals 4.8 t CO₂-e/t, US EPA WARM). Metal in landfill does not break down, so no landfill methane is claimed.</li>
@@ -2026,7 +2026,7 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB4sAAAEYCA
       right: periodSelect() + C.btn('Export CSV', { icon: 'download', action: 'export-partner' }),
       html: C.kpis([
         { label: 'Loads', value: num(R.n), foot: esc(P().short) },
-        { label: 'Weighed in', value: n1(R.tonnes), unit: 't', foot: 'weighbridge at North Geelong' },
+        { label: 'Weighed in', value: n1(R.tonnes), unit: 't', foot: 'over our weighbridge' },
         { label: 'Recovered', value: pct(R.rate), green: true, foot: `${n1(R.recovered)} t` },
         { label: 'CO₂-e avoided', value: n1(R.co2Avoided), unit: 't', foot: `${num(R.trees)} trees’ worth` },
       ]) + C.panel({ title: 'Every load', meta: 'newest first · tap a load for its statement', flush: true, body: loadsTable(list, 'partner') }),
@@ -2073,7 +2073,7 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB4sAAAEYCA
         + C.grid('1fr 1fr',
           C.panel({ title: 'Recovered metal: destination', meta: `${n1(R.recovered)} t`, body: C.split(destParts(R), { cols: 1 }) }),
           C.panel({ title: 'Domestic vs export', body: C.stats([['Australian buyers', n1(R.domestic), 't', true], ['Exported', n1(R.exported), 't'], ['In stock', n1(R.stock), 't']], 3)
-            + `<p class="kit-muted" style="font-size:13px;margin-top:16px;line-height:1.55">Australian buyers are steel mills, foundries, manufacturers and non-ferrous buyers. Export loads are containerised at North Geelong and shipped from Victorian ports.</p>` }))
+            + `<p class="kit-muted" style="font-size:13px;margin-top:16px;line-height:1.55">Australian buyers are steel mills, foundries, manufacturers and non-ferrous buyers. Export loads are containerised at our plant and shipped from Victorian ports.</p>` }))
         + C.panel({ title: 'Metal in → product out', flush: true, body: C.table([
           { label: 'Metal in', render: (x) => `<span class="strong">${esc(x.name)}</span>` },
           { label: 'Turned into', render: (x) => esc(STREAMS[x.id].product) },
@@ -2241,7 +2241,7 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB4sAAAEYCA
   const originParts = (A) => Object.entries(A.byOrigin).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ label: k[0].toUpperCase() + k.slice(1), value: v, display: `${n1(v)} t`, tone: k.startsWith('pre') ? 'processed' : 'recycling' }));
   const contentBasis = (b) => `<ul style="margin:0;padding-left:16px;color:var(--app-text-2);display:grid;gap:6px;font-size:13px">
       <li><b>Recycled content: 100%.</b> Everything dispatched is recovered scrap. No virgin metal is added at any stage.</li>
-      <li><b>Origin:</b> recovered and processed at the Recycle Group facility, 116 Furner Avenue, North Geelong VIC 3215. Australian material, Australian processing.</li>
+      <li><b>Origin:</b> recovered and processed by The Metal Recycling Company in Victoria. Australian material, Australian processing.</li>
       <li><b>Class:</b> post-consumer (mattresses, demolition, council and fit-out material) or pre-consumer (manufacturing offcuts), shown per dispatch and per line.</li>
       <li><b>Weights:</b> every figure is the weighed output of the processing line. Lines marked * use the usual recovery rate for that metal because the output was not separately weighed.</li>
       ${b && b.dest === 'aumill' ? '<li><b>Carbon:</b> scrap-based EAF steel averages 0.70 t CO₂ per tonne of crude steel against 2.32 t for blast-furnace steel (World Steel Association, 2023 data). The mill’s own EPD governs its product; The Metal Recycling Company documents the scrap side.</li>' : ''}
@@ -2273,7 +2273,7 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB4sAAAEYCA
           { label: 'Metal received', value: n1(A.t), unit: 't', foot: `${num(A.n)} dispatch${A.n === 1 ? '' : 'es'} · ${num(A.loads)} source loads`, spark: S.map((x) => x.A.t) },
           { label: 'Recycled content', value: '100', unit: '%', green: true, foot: 'recovered scrap, no virgin metal' },
           { label: top ? top.S.product.split(' (')[0] : 'Main product', value: top ? n1(top.t) : '0', unit: 't', foot: top ? `${pct(top.t / (A.t || 1))} of what you received` : '' },
-          { label: b.dest === 'export' ? 'Containers' : 'Bales', value: b.dest === 'export' ? num(A.containers) : num(A.bales), foot: b.dest === 'export' ? 'packed and counted at North Geelong' : 'nominal count · loose and lots not counted' },
+          { label: b.dest === 'export' ? 'Containers' : 'Bales', value: b.dest === 'export' ? num(A.containers) : num(A.bales), foot: b.dest === 'export' ? 'packed and counted at our plant' : 'nominal count · loose and lots not counted' },
         ])
         + C.grid('1.4fr 1fr',
           C.panel({ title: 'Received over time', meta: 'tonnes weighed out', body: C.chart(S.map((x) => x.b.label), [{ name: 'Received', values: S.map((x) => x.A.t), tone: 'green' }], { unit: 't', height: 250, dp: 1 }) }),
@@ -2324,7 +2324,7 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB4sAAAEYCA
       html: C.kpis([
         { label: 'Weighed out', value: t2(d.t), unit: 't', green: true, foot: `${d.lines.length} source load${d.lines.length === 1 ? '' : 's'}` },
         { label: 'Product', value: esc(d.products[0]), foot: d.products.length > 1 ? `+ ${d.products.length - 1} more` : esc(STREAMS[d.streams[0]].name) },
-        { label: d.container ? 'Container' : 'Bales', value: d.container ? esc(d.container) : (d.bales ? num(d.bales) : 'n/a'), foot: d.container ? `${d.bales ? num(d.bales) + ' bales · ' : ''}packed at North Geelong` : 'nominal count' },
+        { label: d.container ? 'Container' : 'Bales', value: d.container ? esc(d.container) : (d.bales ? num(d.bales) : 'n/a'), foot: d.container ? `${d.bales ? num(d.bales) + ' bales · ' : ''}packed at our plant` : 'nominal count' },
         { label: 'Processed', value: `${fmtDate(d.first)}`, foot: d.first === d.last ? 'single day' : `to ${fmtDate(d.last)}` },
       ])
         + C.panel({ title: 'What was in it', meta: 'one line per source load', flush: true, body: C.table([
@@ -2403,7 +2403,7 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB4sAAAEYCA
 
   Kit.route('buyer/method', () => ({
     title: 'How it’s worked out', nav: 'method', demo: false, sub: 'The weights, recovery rates and published factors behind every figure',
-    html: C.note('Every tonne on a buyer statement is the <b>weighed output</b> of the processing line at North Geelong: what went over the weighbridge on the way out, split by product. Where a load’s own output was not separately weighed, the usual recovery rate for that metal is used and the line is marked *. Bale counts are nominal; container numbers are recorded at packing.') + C.factorsPage(WHO).replace(/tap a number to change it/, 'set by The Metal Recycling Company'),
+    html: C.note('Every tonne on a buyer statement is the <b>weighed output</b> of our processing line: what went over the weighbridge on the way out, split by product. Where a load’s own output was not separately weighed, the usual recovery rate for that metal is used and the line is marked *. Bale counts are nominal; container numbers are recorded at packing.') + C.factorsPage(WHO).replace(/tap a number to change it/, 'set by The Metal Recycling Company'),
     after: (el) => {
       el.querySelectorAll('[data-factor]').forEach((i) => { i.disabled = true; });
       el.querySelector('[data-action="factors-reset"]')?.closest('.kit-toolbar')?.remove();
@@ -2467,7 +2467,7 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB4sAAAEYCA
       prepared: `Prepared ${nowText()}`, logo: ASSETS.logo, logoDark: ASSETS.logoDark, logoH: 28, filename: `${fileBit(b.name)}-dispatch-${d.id}`,
       demo: 'Demonstration figures',
       blocks: [
-        { title: 'The consignment', html: C.review([['Buyer', esc(b.name)], ['Dispatched', fmtDate(d.date)], ['Consignment', esc(d.id)], ['Product', esc(d.products.join(', '))], ['Weighed out', `${t2(d.t)} t`], ['Bales', d.bales ? `${num(d.bales)} (nominal)` : 'loose / lots'], ['Container', esc(d.container || 'n/a')], ['Vehicle', esc(d.vehicle)], ['Processed', d.first === d.last ? fmtDate(d.first) : `${fmtDate(d.first)} – ${fmtDate(d.last)}`], ['Origin', 'Recycle Group facility, 116 Furner Avenue, North Geelong VIC 3215']]) },
+        { title: 'The consignment', html: C.review([['Buyer', esc(b.name)], ['Dispatched', fmtDate(d.date)], ['Consignment', esc(d.id)], ['Product', esc(d.products.join(', '))], ['Weighed out', `${t2(d.t)} t`], ['Bales', d.bales ? `${num(d.bales)} (nominal)` : 'loose / lots'], ['Container', esc(d.container || 'n/a')], ['Vehicle', esc(d.vehicle)], ['Processed', d.first === d.last ? fmtDate(d.first) : `${fmtDate(d.first)} – ${fmtDate(d.last)}`], ['Origin', 'The Metal Recycling Company, Victoria']]) },
         { title: 'What was in it', meta: 'one line per source load', table: { cols: [
           { label: 'Processed', render: (l) => `<span style="white-space:nowrap">${fmtDate(l.r.date)}</span>` },
           { label: 'Source stream → product', render: (l) => `${esc(STREAMS[l.r.stream].name)} → ${esc(STREAMS[l.r.stream].product.split(' (')[0])}` },
@@ -2720,7 +2720,7 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB4sAAAEYCA
     const mine = data.partners;
     return C.grid('1fr 1fr',
       C.panel({ title: 'Add a partner', body: `<div class="kit-entry">
-        <label class="kit-select kit-field"><span>Partner name</span><input class="rgc-input" type="text" data-newpartner="name" placeholder="e.g. Geelong Demolition Pty Ltd"></label>
+        <label class="kit-select kit-field"><span>Partner name</span><input class="rgc-input" type="text" data-newpartner="name" placeholder="e.g. Westside Demolition Pty Ltd"></label>
         <div class="kit-toolbar">${C.select('newpartner-type', TYPES, TYPES[0], 'Type')}<label class="kit-select kit-field"><span>Main contact role (optional)</span><input class="rgc-input" type="text" data-newpartner="contact" placeholder="e.g. Site Manager"></label></div>
         <label class="kit-select kit-field"><span>Sites (one per line: name, city, state)</span><textarea class="rgc-input kit-paste" data-newpartner="sites" placeholder="Laverton yard, Laverton, VIC&#10;Brisbane depot, Brisbane, QLD"></textarea></label>
         <div class="kit-toolbar"><button type="button" class="rgc-btn rgc-btn--primary kit-bigbtn" data-action="partner-add">${icon('plus', 16)} Add partner</button></div>
@@ -2851,7 +2851,7 @@ window.ASSETS={"logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB4sAAAEYCA
       html: C.kpis([
         { label: 'Recovered', value: n1(R.recovered), unit: 't' },
         { label: 'Australian buyers', value: n1(R.domestic), unit: 't', green: true, foot: 'mills, foundries, manufacturers, non-ferrous' },
-        { label: 'Exported', value: n1(R.exported), unit: 't', foot: 'containerised at North Geelong' },
+        { label: 'Exported', value: n1(R.exported), unit: 't', foot: 'containerised at our plant' },
         { label: 'In stock', value: n1(R.stock), unit: 't', foot: 'processed, awaiting dispatch' },
       ])
         + C.grid('1fr 1.4fr',
