@@ -3,9 +3,9 @@
 // Playwright must be importable; set PW_CHROMIUM to a Chromium binary if needed.
 const { chromium } = require('playwright');
 const DOCS = {
-  'collection-service': 'Metal-Recycling-Company-Collection-Service.pdf',
-  'capability-statement': 'Metal-Recycling-Company-Capability-Statement.pdf',
-  'spring-steel-specification': 'Metal-Recycling-Company-Spring-Steel-Specification.pdf',
+  'collection-service': 'Recycled-Collection-Service.pdf',
+  'capability-statement': 'Recycled-Capability-Statement.pdf',
+  'spring-steel-specification': 'Recycled-Spring-Steel-Specification.pdf',
 };
 const only = process.argv.slice(2);
 (async () => {
